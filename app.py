@@ -1,5 +1,6 @@
 import streamlit as st
-import sqlite3
+import psycopg2
+from psycopg2.extras import RealDictCursor
 import hashlib
 from datetime import datetime
 import pandas as pd
@@ -530,9 +531,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Database setup
-DB_NAME = "customer_records.db"
-
 # Timezone - Change this to your local timezone
 LOCAL_TIMEZONE = pytz.timezone('Asia/Karachi')  # Pakistan timezone
 
@@ -540,9 +538,22 @@ def get_local_time():
     """Get current time in local timezone"""
     return datetime.now(LOCAL_TIMEZONE)
 
+# ==================== POSTGRESQL CONNECTION ====================
+
 def get_db_connection():
-    """Get database connection with thread safety"""
-    return sqlite3.connect(DB_NAME, check_same_thread=False)
+    """Get PostgreSQL database connection from Streamlit secrets"""
+    try:
+        conn = psycopg2.connect(
+            host=st.secrets["DB_HOST"],
+            database=st.secrets["DB_NAME"],
+            user=st.secrets["DB_USER"],
+            password=st.secrets["DB_PASSWORD"],
+            port=st.secrets["DB_PORT"]
+        )
+        return conn
+    except Exception as e:
+        st.error(f"Database connection failed: {str(e)}")
+        st.stop()
 
 def hash_password(password):
     """Hash password using PBKDF2"""
@@ -554,39 +565,43 @@ def init_db():
     conn = get_db_connection()
     c = conn.cursor()
     
-    c.execute('''CREATE TABLE IF NOT EXISTS users
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  name TEXT NOT NULL,
-                  email TEXT UNIQUE NOT NULL,
-                  password TEXT NOT NULL)''')
+    # Create users table
+    c.execute('''CREATE TABLE IF NOT EXISTS users (
+                 id SERIAL PRIMARY KEY,
+                 name TEXT NOT NULL,
+                 email TEXT UNIQUE NOT NULL,
+                 password TEXT NOT NULL
+                 )''')
     
-    c.execute('''CREATE TABLE IF NOT EXISTS customers
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  user_id INTEGER NOT NULL,
-                  name TEXT NOT NULL,
-                  FOREIGN KEY (user_id) REFERENCES users(id))''')
+    # Create customers table
+    c.execute('''CREATE TABLE IF NOT EXISTS customers (
+                 id SERIAL PRIMARY KEY,
+                 user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+                 name TEXT NOT NULL
+                 )''')
     
-    c.execute('''CREATE TABLE IF NOT EXISTS transactions
-                 (id INTEGER PRIMARY KEY AUTOINCREMENT,
-                  customer_id INTEGER NOT NULL,
-                  date_time TEXT NOT NULL,
-                  type TEXT NOT NULL,
-                  total_amount REAL DEFAULT 0,
-                  amount_received REAL DEFAULT 0,
-                  amount_left REAL DEFAULT 0,
-                  note TEXT,
-                  FOREIGN KEY (customer_id) REFERENCES customers(id))''')
+    # Create transactions table
+    c.execute('''CREATE TABLE IF NOT EXISTS transactions (
+                 id SERIAL PRIMARY KEY,
+                 customer_id INTEGER NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
+                 date_time TIMESTAMP NOT NULL,
+                 type TEXT NOT NULL CHECK (type IN ('Received', 'Given')),
+                 total_amount NUMERIC DEFAULT 0,
+                 amount_received NUMERIC DEFAULT 0,
+                 amount_left NUMERIC DEFAULT 0,
+                 note TEXT
+                 )''')
     
-    # Create default admin user
+    # Create default admin user if not exists
     try:
-        c.execute("SELECT * FROM users WHERE email = ?", ('admin@example.com',))
+        c.execute("SELECT * FROM users WHERE email = %s", ('admin@example.com',))
         if not c.fetchone():
             hashed = hash_password('admin123')
-            c.execute("INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
+            c.execute("INSERT INTO users (name, email, password) VALUES (%s, %s, %s)",
                       ('Admin User', 'admin@example.com', hashed))
             conn.commit()
-    except:
-        pass
+    except Exception as e:
+        conn.rollback()
     
     conn.close()
 
@@ -614,20 +629,27 @@ def init_session_state():
 
 init_session_state()
 
-# Database Functions
+# ==================== DATABASE FUNCTIONS ====================
+
 def register_user(name, email, password):
     """Register a new user"""
     try:
         conn = get_db_connection()
         c = conn.cursor()
         hashed = hash_password(password)
-        c.execute("INSERT INTO users (name, email, password) VALUES (?, ?, ?)",
+        c.execute("INSERT INTO users (name, email, password) VALUES (%s, %s, %s) RETURNING id",
                   (name, email, hashed))
-        user_id = c.lastrowid
+        user_id = c.fetchone()[0]
         conn.commit()
         conn.close()
         return True, user_id, name
-    except sqlite3.IntegrityError:
+    except psycopg2.IntegrityError:
+        conn.rollback()
+        conn.close()
+        return False, None, None
+    except Exception as e:
+        conn.rollback()
+        conn.close()
         return False, None, None
 
 def login_user(email, password):
@@ -635,7 +657,7 @@ def login_user(email, password):
     conn = get_db_connection()
     c = conn.cursor()
     hashed = hash_password(password)
-    c.execute("SELECT id, name FROM users WHERE email = ? AND password = ?",
+    c.execute("SELECT id, name FROM users WHERE email = %s AND password = %s",
               (email, hashed))
     result = c.fetchone()
     conn.close()
@@ -647,7 +669,7 @@ def get_customers(user_id):
     """Get all customers for a user"""
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("SELECT id, name FROM customers WHERE user_id = ? ORDER BY name",
+    c.execute("SELECT id, name FROM customers WHERE user_id = %s ORDER BY name",
               (user_id,))
     customers = c.fetchall()
     conn.close()
@@ -657,7 +679,7 @@ def add_customer(user_id, name):
     """Add a new customer"""
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("INSERT INTO customers (user_id, name) VALUES (?, ?)",
+    c.execute("INSERT INTO customers (user_id, name) VALUES (%s, %s)",
               (user_id, name))
     conn.commit()
     conn.close()
@@ -668,24 +690,24 @@ def get_transactions(customer_id, month_filter=None, start_date=None, end_date=N
     c = conn.cursor()
     
     if start_date and end_date:
-        # Date range filter
+        # Date range filter - PostgreSQL syntax
         c.execute("""SELECT id, date_time, type, total_amount, amount_received, amount_left, note 
                      FROM transactions 
-                     WHERE customer_id = ? AND date(date_time) BETWEEN ? AND ?
+                     WHERE customer_id = %s AND date_time::date BETWEEN %s AND %s
                      ORDER BY date_time DESC""",
                   (customer_id, start_date, end_date))
     elif month_filter and month_filter != "All Months":
-        # Month filter
+        # Month filter - PostgreSQL syntax
         c.execute("""SELECT id, date_time, type, total_amount, amount_received, amount_left, note 
                      FROM transactions 
-                     WHERE customer_id = ? AND strftime('%Y-%m', date_time) = ?
+                     WHERE customer_id = %s AND TO_CHAR(date_time, 'YYYY-MM') = %s
                      ORDER BY date_time DESC""",
                   (customer_id, month_filter))
     else:
         # No filter - all transactions
         c.execute("""SELECT id, date_time, type, total_amount, amount_received, amount_left, note 
                      FROM transactions 
-                     WHERE customer_id = ?
+                     WHERE customer_id = %s
                      ORDER BY date_time DESC""",
                   (customer_id,))
     
@@ -700,7 +722,7 @@ def get_today_transactions(customer_id):
     today = get_local_time().strftime('%Y-%m-%d')
     c.execute("""SELECT date_time, type, total_amount 
                  FROM transactions 
-                 WHERE customer_id = ? AND date(date_time) = ?
+                 WHERE customer_id = %s AND date_time::date = %s
                  ORDER BY date_time DESC""",
               (customer_id, today))
     transactions = c.fetchall()
@@ -713,7 +735,7 @@ def add_transaction(customer_id, trans_type, total_amount, amount_received, amou
     c = conn.cursor()
     date_time = get_local_time().strftime('%Y-%m-%d %H:%M:%S')
     c.execute("""INSERT INTO transactions (customer_id, date_time, type, total_amount, amount_received, amount_left, note)
-                 VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                 VALUES (%s, %s, %s, %s, %s, %s, %s)""",
               (customer_id, date_time, trans_type, total_amount, amount_received, amount_left, note))
     conn.commit()
     conn.close()
@@ -723,8 +745,8 @@ def update_transaction(trans_id, trans_type, total_amount, amount_received, amou
     conn = get_db_connection()
     c = conn.cursor()
     c.execute("""UPDATE transactions 
-                 SET type = ?, total_amount = ?, amount_received = ?, amount_left = ?, note = ?
-                 WHERE id = ?""",
+                 SET type = %s, total_amount = %s, amount_received = %s, amount_left = %s, note = %s
+                 WHERE id = %s""",
               (trans_type, total_amount, amount_received, amount_left, note, trans_id))
     conn.commit()
     conn.close()
@@ -733,7 +755,7 @@ def delete_transaction(trans_id):
     """Delete a transaction"""
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("DELETE FROM transactions WHERE id = ?", (trans_id,))
+    c.execute("DELETE FROM transactions WHERE id = %s", (trans_id,))
     conn.commit()
     conn.close()
 
@@ -741,9 +763,9 @@ def get_available_months(customer_id):
     """Get list of months with transactions"""
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("""SELECT DISTINCT strftime('%Y-%m', date_time) as month
+    c.execute("""SELECT DISTINCT TO_CHAR(date_time, 'YYYY-MM') as month
                  FROM transactions 
-                 WHERE customer_id = ?
+                 WHERE customer_id = %s
                  ORDER BY month DESC""",
               (customer_id,))
     months = [row[0] for row in c.fetchall()]
@@ -752,8 +774,8 @@ def get_available_months(customer_id):
 
 def calculate_summary(transactions):
     """Calculate total received, given, and balance"""
-    total_received = sum(t[3] for t in transactions if t[2] == 'Received')
-    total_given = sum(t[3] for t in transactions if t[2] == 'Given')
+    total_received = sum(float(t[3]) for t in transactions if t[2] == 'Received')
+    total_given = sum(float(t[3]) for t in transactions if t[2] == 'Given')
     balance = total_received - total_given
     return total_received, total_given, balance
 
@@ -975,13 +997,13 @@ else:
             st.markdown("### 📅 Today's Activity")
             for trans in today_trans:
                 date_time, trans_type, amount = trans
-                time_only = datetime.strptime(date_time, '%Y-%m-%d %H:%M:%S').strftime('%I:%M %p')
+                time_only = date_time.strftime('%I:%M %p')
                 col1, col2 = st.columns([3, 1])
                 with col1:
                     if trans_type == "Received":
-                        st.success(f"✅ Payment Received: ₨ {amount:,.2f}")
+                        st.success(f"✅ Payment Received: ₨ {float(amount):,.2f}")
                     else:
-                        st.error(f"❌ Payment Given: ₨ {amount:,.2f}")
+                        st.error(f"❌ Payment Given: ₨ {float(amount):,.2f}")
                 with col2:
                     st.write(f"🕐 {time_only}")
         
@@ -1000,8 +1022,8 @@ else:
             if st.session_state.edit_transaction_id:
                 trans = [t for t in transactions if t[0] == st.session_state.edit_transaction_id][0]
                 default_type = trans[2]
-                default_total_amount = trans[3]
-                default_amount_received = trans[4]
+                default_total_amount = float(trans[3])
+                default_amount_received = float(trans[4])
                 default_note = trans[6] or ""
             else:
                 default_type = "Received"
@@ -1065,22 +1087,28 @@ else:
             for trans in transactions:
                 trans_id, date_time, trans_type, total_amount, amount_received, amount_left, note = trans
                 
+                # Format datetime for display
+                if isinstance(date_time, str):
+                    display_time = date_time
+                else:
+                    display_time = date_time.strftime('%Y-%m-%d %H:%M:%S')
+                
                 st.markdown('<div class="transaction-card">', unsafe_allow_html=True)
                 col1, col2, col3, col4, col5, col6, col7 = st.columns([2, 1, 1.2, 1.2, 1.2, 2.5, 0.8])
                 
                 with col1:
-                    st.markdown(f"**📅 {date_time}**")
+                    st.markdown(f"**📅 {display_time}**")
                 with col2:
                     if trans_type == "Received":
                         st.success("✅ Received")
                     else:
                         st.error("❌ Given")
                 with col3:
-                    st.markdown(f"**Total:** ₨ {total_amount:,.2f}")
+                    st.markdown(f"**Total:** ₨ {float(total_amount):,.2f}")
                 with col4:
-                    st.write(f"Paid: ₨ {amount_received:,.2f}")
+                    st.write(f"Paid: ₨ {float(amount_received):,.2f}")
                 with col5:
-                    st.write(f"Pending: ₨ {amount_left:,.2f}")
+                    st.write(f"Pending: ₨ {float(amount_left):,.2f}")
                 with col6:
                     st.write(note if note else "—")
                 with col7:
