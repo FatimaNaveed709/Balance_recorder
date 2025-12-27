@@ -541,19 +541,21 @@ def get_local_time():
 # ==================== POSTGRESQL CONNECTION ====================
 
 def get_db_connection():
-    """Get PostgreSQL database connection from Streamlit secrets"""
+    """Get PostgreSQL database connection from Streamlit secrets with SSL"""
     try:
         conn = psycopg2.connect(
             host=st.secrets["DB_HOST"],
             database=st.secrets["DB_NAME"],
             user=st.secrets["DB_USER"],
             password=st.secrets["DB_PASSWORD"],
-            port=st.secrets["DB_PORT"]
+            port=st.secrets["DB_PORT"],
+            sslmode="require"   # <-- This is the key addition
         )
         return conn
     except Exception as e:
         st.error(f"Database connection failed: {str(e)}")
         st.stop()
+
 
 def hash_password(password):
     """Hash password using PBKDF2"""
