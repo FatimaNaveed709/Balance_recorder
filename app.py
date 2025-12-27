@@ -541,7 +541,7 @@ def get_local_time():
 # ==================== POSTGRESQL CONNECTION ====================
 
 def get_db_connection():
-    """Get PostgreSQL database connection from Streamlit secrets with SSL"""
+    """Get PostgreSQL connection using Streamlit secrets (Session Pooler)"""
     try:
         conn = psycopg2.connect(
             host=st.secrets["DB_HOST"],
@@ -549,11 +549,12 @@ def get_db_connection():
             user=st.secrets["DB_USER"],
             password=st.secrets["DB_PASSWORD"],
             port=st.secrets["DB_PORT"],
-            sslmode="require"   # <-- This is the key addition
+            sslmode=st.secrets["DB_SSLMODE"],  # required for pooler
+            cursor_factory=RealDictCursor
         )
         return conn
     except Exception as e:
-        st.error(f"Database connection failed: {str(e)}")
+        st.error(f"Database connection failed: {e}")
         st.stop()
 
 
