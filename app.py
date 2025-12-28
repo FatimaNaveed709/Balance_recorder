@@ -14,534 +14,119 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Custom CSS for dark theme and professional UI with HIGH VISIBILITY
+# Custom CSS (keeping your existing CSS exactly as is)
 st.markdown("""
 <style>
-    /* Dark theme */
-    .stApp {
-        background: #000000;
+    .stApp { background: #000000; }
+    body, div, span, p, h1, h2, h3, h4, h5, h6, label { color: #ffffff !important; }
+    .stMarkdown, .stMarkdown p, .stMarkdown span, .stMarkdown div { color: #ffffff !important; }
+    .stSelectbox svg { color: #000000 !important; }
+    .stSelectbox input, .stSelectbox [data-baseweb="select"] div, .stSelectbox [data-baseweb="select"] span, .stSelectbox [data-baseweb="select"] p {
+        color: #000000 !important; -webkit-text-fill-color: #000000 !important; fill: #000000 !important;
     }
-    
-    /* Default: all text white EXCEPT specific elements */
-    body, div, span, p, h1, h2, h3, h4, h5, h6, label {
-        color: #ffffff !important;
+    div[data-baseweb="select"] > div > div, div[data-baseweb="select"] > div > div > div, div[data-baseweb="select"] > div > div > div > span {
+        color: #000000 !important; -webkit-text-fill-color: #000000 !important;
     }
-    
-    /* Override Streamlit's default text colors */
-    .stMarkdown, .stMarkdown p, .stMarkdown span, .stMarkdown div {
-        color: #ffffff !important;
-    }
-    
-    /* CRITICAL: Force BLACK text in selectbox - Override everything */
-    .stSelectbox svg {
-        color: #000000 !important;
-    }
-    
-    .stSelectbox input,
-    .stSelectbox [data-baseweb="select"] div,
-    .stSelectbox [data-baseweb="select"] span,
-    .stSelectbox [data-baseweb="select"] p {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
-        fill: #000000 !important;
-    }
-    
-    /* Force black on the VALUE displayed in selectbox */
-    div[data-baseweb="select"] > div > div,
-    div[data-baseweb="select"] > div > div > div,
-    div[data-baseweb="select"] > div > div > div > span {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
-    }
-
-    
-    /* Labels and captions */
-    label, .stMarkdown label {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-        font-size: 1rem !important;
-    }
-    
-    /* Custom containers */
+    label, .stMarkdown label { color: #ffffff !important; font-weight: 600 !important; font-size: 1rem !important; }
     .main-header {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem;
-        border-radius: 15px;
-        margin-bottom: 2rem;
+        padding: 2rem; border-radius: 15px; margin-bottom: 2rem;
         box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
     }
-    
     .metric-card {
-        background: rgba(102, 126, 234, 0.15);
-        backdrop-filter: blur(10px);
-        border: 2px solid rgba(102, 126, 234, 0.3);
-        border-radius: 12px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        background: rgba(102, 126, 234, 0.15); backdrop-filter: blur(10px);
+        border: 2px solid rgba(102, 126, 234, 0.3); border-radius: 12px;
+        padding: 1.5rem; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
-    
-    /* Button styling */
     .stButton>button {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        border: none !important;
-        border-radius: 8px !important;
-        padding: 0.6rem 1.2rem !important;
-        font-weight: 700 !important;
-        color: #ffffff !important;
-        transition: all 0.3s ease !important;
+        border: none !important; border-radius: 8px !important;
+        padding: 0.6rem 1.2rem !important; font-weight: 700 !important;
+        color: #ffffff !important; transition: all 0.3s ease !important;
     }
-    
     .stButton>button:hover {
         transform: translateY(-2px) !important;
         box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5) !important;
         background: linear-gradient(135deg, #7c8eea 0%, #8a5bb2 100%) !important;
     }
-    
-    .stButton>button p, .stButton>button span, .stButton>button div {
-        color: #ffffff !important;
-        font-weight: 700 !important;
+    .stButton>button p, .stButton>button span, .stButton>button div { color: #ffffff !important; font-weight: 700 !important; }
+    .stTextInput>div>div>input, .stSelectbox>div>div>select, .stTextArea>div>div>textarea, .stNumberInput>div>div>input {
+        background: rgba(255, 255, 255, 0.95) !important; border: 2px solid rgba(102, 126, 234, 0.4) !important;
+        border-radius: 8px !important; color: #000000 !important; padding: 0.8rem !important;
+        font-size: 1rem !important; font-weight: 600 !important;
     }
-    
-    /* Form inputs - HIGH CONTRAST */
-    .stTextInput>div>div>input,
-    .stSelectbox>div>div>select,
-    .stTextArea>div>div>textarea,
-    .stNumberInput>div>div>input {
-        background: rgba(255, 255, 255, 0.95) !important;
-        border: 2px solid rgba(102, 126, 234, 0.4) !important;
-        border-radius: 8px !important;
-        color: #000000 !important;
-        padding: 0.8rem !important;
-        font-size: 1rem !important;
-        font-weight: 600 !important;
+    .stTextInput>div>div>input::placeholder, .stTextArea>div>div>textarea::placeholder {
+        color: rgba(0, 0, 0, 0.5) !important; font-weight: 500 !important;
     }
-    
-    .stTextInput>div>div>input::placeholder,
-    .stTextArea>div>div>textarea::placeholder {
-        color: rgba(0, 0, 0, 0.5) !important;
-        font-weight: 500 !important;
+    .stTextInput>div>div>input:focus, .stSelectbox>div>div>select:focus, .stTextArea>div>div>textarea:focus, .stNumberInput>div>div>input:focus {
+        border-color: #667eea !important; box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2) !important;
     }
-    
-    .stTextInput>div>div>input:focus,
-    .stSelectbox>div>div>select:focus,
-    .stTextArea>div>div>textarea:focus,
-    .stNumberInput>div>div>input:focus {
-        border-color: #667eea !important;
-        box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2) !important;
-    }
-    
-    /* ULTIMATE NUCLEAR OPTION - Force BLACK text in selectbox */
-    .stSelectbox,
-    .stSelectbox *:not(label) {
-        color: #000000 !important;
-        -webkit-text-fill-color: #000000 !important;
-    }
-    
-    /* Labels stay white */
-    .stSelectbox > label {
-        color: #ffffff !important;
-    }
-    
-    .stSelectbox>div>div>select option {
-        background: #ffffff !important;
-        color: #000000 !important;
-        font-weight: 700 !important;
-    }
-    
-    .stSelectbox>div>div>select {
-        color: #000000 !important;
-        font-weight: 700 !important;
-    }
-    
-    /* Selectbox selected value text - FORCE BLACK */
-    .stSelectbox [data-baseweb="select"] {
-        color: #000000 !important;
-    }
-    
-    .stSelectbox [data-baseweb="select"] * {
-        color: #000000 !important;
-        font-weight: 700 !important;
-    }
-    
-    .stSelectbox [data-baseweb="select"] > div {
-        color: #000000 !important;
-        font-weight: 700 !important;
-    }
-    
-    .stSelectbox [data-baseweb="select"] span {
-        color: #000000 !important;
-        font-weight: 700 !important;
-    }
-    
-    .stSelectbox [data-baseweb="select"] div[role="button"] {
-        color: #000000 !important;
-        font-weight: 700 !important;
-    }
-    
-    .stSelectbox [data-baseweb="select"] [data-testid="stMarkdownContainer"] {
-        color: #000000 !important;
-    }
-    
-    /* Dropdown menu items */
-    [data-baseweb="popover"] [role="option"] {
-        color: #000000 !important;
-        font-weight: 700 !important;
-        background: #ffffff !important;
-    }
-    
-    [data-baseweb="popover"] [role="option"]:hover {
-        background: #f0f0f0 !important;
-        color: #000000 !important;
-    }
-    
-    /* Dropdown list container */
-    [data-baseweb="popover"] {
-        background: #ffffff !important;
-    }
-    
-    [data-baseweb="popover"] * {
-        color: #000000 !important;
-    }
-    
-    /* List container styling */
-    [role="listbox"] {
-        background: #ffffff !important;
-        border: 2px solid #667eea !important;
-    }
-    
-    [role="listbox"] * {
-        color: #000000 !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Each option in dropdown */
-    [role="option"] {
-        background: #ffffff !important;
-        color: #000000 !important;
-        padding: 0.5rem 1rem !important;
-    }
-    
-    [role="option"]:hover {
-        background: #e8eaf6 !important;
-        color: #000000 !important;
-    }
-    
-    /* Force selectbox value display */
-    [data-baseweb="select"] [data-baseweb="input"] {
-        color: #000000 !important;
-    }
-    
-    [data-baseweb="select"] [data-baseweb="input"] * {
-        color: #000000 !important;
-    }
-    
-    /* Metrics - HIGH VISIBILITY */
-    [data-testid="stMetricValue"] {
-        font-size: 2.2rem !important;
-        font-weight: 700 !important;
-        color: #ffffff !important;
-    }
-    
-    [data-testid="stMetricLabel"] {
-        font-size: 1.1rem !important;
-        color: #ffffff !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Cards */
+    .stSelectbox, .stSelectbox *:not(label) { color: #000000 !important; -webkit-text-fill-color: #000000 !important; }
+    .stSelectbox > label { color: #ffffff !important; }
+    .stSelectbox>div>div>select option { background: #ffffff !important; color: #000000 !important; font-weight: 700 !important; }
+    .stSelectbox>div>div>select { color: #000000 !important; font-weight: 700 !important; }
+    .stSelectbox [data-baseweb="select"] { color: #000000 !important; }
+    .stSelectbox [data-baseweb="select"] * { color: #000000 !important; font-weight: 700 !important; }
+    [data-baseweb="popover"] [role="option"] { color: #000000 !important; font-weight: 700 !important; background: #ffffff !important; }
+    [data-baseweb="popover"] [role="option"]:hover { background: #f0f0f0 !important; color: #000000 !important; }
+    [data-baseweb="popover"] { background: #ffffff !important; }
+    [data-baseweb="popover"] * { color: #000000 !important; }
+    [role="listbox"] { background: #ffffff !important; border: 2px solid #667eea !important; }
+    [role="listbox"] * { color: #000000 !important; font-weight: 600 !important; }
+    [role="option"] { background: #ffffff !important; color: #000000 !important; padding: 0.5rem 1rem !important; }
+    [role="option"]:hover { background: #e8eaf6 !important; color: #000000 !important; }
+    [data-testid="stMetricValue"] { font-size: 2.2rem !important; font-weight: 700 !important; color: #ffffff !important; }
+    [data-testid="stMetricLabel"] { font-size: 1.1rem !important; color: #ffffff !important; font-weight: 600 !important; }
     .transaction-card {
-        background: rgba(102, 126, 234, 0.08);
-        border-left: 4px solid #667eea;
-        border: 2px solid rgba(102, 126, 234, 0.2);
-        padding: 1.2rem;
-        border-radius: 10px;
-        margin: 0.8rem 0;
-        backdrop-filter: blur(10px);
+        background: rgba(102, 126, 234, 0.08); border-left: 4px solid #667eea;
+        border: 2px solid rgba(102, 126, 234, 0.2); padding: 1.2rem;
+        border-radius: 10px; margin: 0.8rem 0; backdrop-filter: blur(10px);
     }
-    
-    .transaction-card * {
-        color: #ffffff !important;
+    .transaction-card * { color: #ffffff !important; }
+    h1, h2, h3, h4, h5, h6 { color: #ffffff !important; font-weight: 700 !important; }
+    .stSuccess, .stError, .stWarning, .stInfo { border-radius: 10px !important; backdrop-filter: blur(10px) !important; font-weight: 600 !important; }
+    .stSuccess { background: rgba(76, 175, 80, 0.95) !important; border: 2px solid rgba(76, 175, 80, 1) !important; color: #000000 !important; }
+    .stSuccess * { color: #000000 !important; font-weight: 600 !important; }
+    .stError { background: rgba(244, 67, 54, 0.95) !important; border: 2px solid rgba(244, 67, 54, 1) !important; color: #000000 !important; }
+    .stError * { color: #000000 !important; font-weight: 600 !important; }
+    .stWarning { background: rgba(255, 193, 7, 0.95) !important; border: 2px solid rgba(255, 193, 7, 1) !important; color: #000000 !important; }
+    .stWarning * { color: #000000 !important; font-weight: 600 !important; }
+    .stInfo { background: rgba(33, 150, 243, 0.95) !important; border: 2px solid rgba(33, 150, 243, 1) !important; color: #000000 !important; }
+    .stInfo * { color: #000000 !important; font-weight: 600 !important; }
+    .stTabs [data-baseweb="tab-list"] { gap: 8px; background: rgba(102, 126, 234, 0.1); border-radius: 10px; padding: 0.5rem; }
+    .stTabs [data-baseweb="tab"] { border-radius: 8px; color: #ffffff !important; font-weight: 600 !important; font-size: 1rem !important; }
+    .stTabs [aria-selected="true"] { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; color: #ffffff !important; }
+    .stRadio > div { background: rgba(102, 126, 234, 0.08); border-radius: 10px; padding: 1rem; border: 2px solid rgba(102, 126, 234, 0.2); }
+    .stRadio label { color: #ffffff !important; font-weight: 600 !important; font-size: 1rem !important; }
+    .stDownloadButton>button { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important; color: #ffffff !important; font-weight: 700 !important; }
+    .stDownloadButton>button:hover { transform: translateY(-2px) !important; box-shadow: 0 6px 20px rgba(245, 87, 108, 0.5) !important; }
+    .stDownloadButton>button p, .stDownloadButton>button span, .stDownloadButton>button div { color: #ffffff !important; font-weight: 700 !important; }
+    .stDateInput>div>div>input { background: rgba(255, 255, 255, 0.95) !important; border: 2px solid rgba(102, 126, 234, 0.4) !important;
+        border-radius: 8px !important; color: #000000 !important; font-weight: 700 !important; font-size: 1rem !important;
     }
-    
-    /* Headers - BRIGHT */
-    h1, h2, h3, h4, h5, h6 {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-    }
-    
-    /* Success/Error boxes */
-    .stSuccess, .stError, .stWarning, .stInfo {
-        border-radius: 10px !important;
-        backdrop-filter: blur(10px) !important;
-        font-weight: 600 !important;
-    }
-    
-    .stSuccess {
-        background: rgba(76, 175, 80, 0.95) !important;
-        border: 2px solid rgba(76, 175, 80, 1) !important;
-        color: #000000 !important;
-    }
-    
-    .stSuccess * {
-        color: #000000 !important;
-        font-weight: 600 !important;
-    }
-    
-    .stError {
-        background: rgba(244, 67, 54, 0.95) !important;
-        border: 2px solid rgba(244, 67, 54, 1) !important;
-        color: #000000 !important;
-    }
-    
-    .stError * {
-        color: #000000 !important;
-        font-weight: 600 !important;
-    }
-    
-    .stWarning {
-        background: rgba(255, 193, 7, 0.95) !important;
-        border: 2px solid rgba(255, 193, 7, 1) !important;
-        color: #000000 !important;
-    }
-    
-    .stWarning * {
-        color: #000000 !important;
-        font-weight: 600 !important;
-    }
-    
-    .stInfo {
-        background: rgba(33, 150, 243, 0.95) !important;
-        border: 2px solid rgba(33, 150, 243, 1) !important;
-        color: #000000 !important;
-    }
-    
-    .stInfo * {
-        color: #000000 !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Tabs */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 8px;
-        background: rgba(102, 126, 234, 0.1);
-        border-radius: 10px;
-        padding: 0.5rem;
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        border-radius: 8px;
-        color: #ffffff !important;
-        font-weight: 600 !important;
-        font-size: 1rem !important;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        color: #ffffff !important;
-    }
-    
-    /* Radio buttons */
-    .stRadio > div {
-        background: rgba(102, 126, 234, 0.08);
-        border-radius: 10px;
-        padding: 1rem;
-        border: 2px solid rgba(102, 126, 234, 0.2);
-    }
-    
-    .stRadio label {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-        font-size: 1rem !important;
-    }
-    
-    /* Download button */
-    .stDownloadButton>button {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
-        color: #ffffff !important;
-        font-weight: 700 !important;
-    }
-    
-    .stDownloadButton>button:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 20px rgba(245, 87, 108, 0.5) !important;
-    }
-    
-    .stDownloadButton>button p, .stDownloadButton>button span, .stDownloadButton>button div {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-    }
-    
-    /* Date input */
-    .stDateInput>div>div>input {
-        background: rgba(255, 255, 255, 0.95) !important;
-        border: 2px solid rgba(102, 126, 234, 0.4) !important;
-        border-radius: 8px !important;
-        color: #000000 !important;
-        font-weight: 700 !important;
-        font-size: 1rem !important;
-    }
-    
-    /* Date picker calendar styling - SIMPLE BLACK THEME */
-    [data-baseweb="calendar"] {
-        background: #000000 !important;
-        border: 2px solid #333333 !important;
-        border-radius: 8px !important;
-        padding: 1rem !important;
-    }
-    
-    [data-baseweb="calendar"] * {
-        color: #ffffff !important;
-        font-weight: 500 !important;
-    }
-    
-    /* Calendar header - month/year */
-    [data-baseweb="calendar"] [role="heading"],
-    [data-baseweb="calendar"] [aria-live="polite"] {
-        background: #000000 !important;
-        color: #ffffff !important;
-        font-weight: 600 !important;
-        font-size: 1rem !important;
-        padding: 0.5rem !important;
-    }
-    
-    /* Calendar navigation arrows */
-    [data-baseweb="calendar"] button[aria-label*="Previous"],
-    [data-baseweb="calendar"] button[aria-label*="Next"] {
-        color: #ffffff !important;
-        background: transparent !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Day names (Mo, Tu, We, etc) */
-    [data-baseweb="calendar"] [role="columnheader"] {
-        color: #999999 !important;
-        font-weight: 500 !important;
-        background: transparent !important;
-        padding: 0.3rem !important;
-        font-size: 0.85rem !important;
-    }
-    
-    /* Date buttons */
-    [data-baseweb="calendar"] [role="button"] {
-        color: #ffffff !important;
-        background: transparent !important;
-        font-weight: 500 !important;
-        border-radius: 4px !important;
-    }
-    
-    [data-baseweb="calendar"] [role="button"]:hover {
-        background: #222222 !important;
-    }
-    
-    /* Selected date */
-    [data-baseweb="calendar"] [aria-selected="true"] {
-        background: #667eea !important;
-        color: #ffffff !important;
-        font-weight: 600 !important;
-    }
-    
-    [data-baseweb="month-header"] {
-        color: #ffffff !important;
-        background: #000000 !important;
-        padding: 0.5rem !important;
-    }
-    
-    [data-baseweb="calendar"] header {
-        background: #000000 !important;
-        color: #ffffff !important;
-        padding: 0.5rem !important;
-    }
-    
-    [data-baseweb="calendar"] [aria-label*="Choose"] {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Calendar top section with month/year display */
-    [data-baseweb="calendar"] > div:first-child {
-        background: #000000 !important;
-        color: #ffffff !important;
-    }
-    
-    [data-baseweb="calendar"] > div:first-child * {
-        color: #ffffff !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Disable dates from other months */
-    [data-baseweb="calendar"] [aria-disabled="true"] {
-        color: #444444 !important;
-    }
-    
-    /* Caption text */
-    .stCaption {
-        color: rgba(255, 255, 255, 0.9) !important;
-        font-size: 1rem !important;
-        font-weight: 500 !important;
-    }
-    
-    /* Divider */
-    hr {
-        border-color: rgba(102, 126, 234, 0.3) !important;
-        margin: 2rem 0 !important;
-    }
-    
-    /* Write/markdown text */
-    .stMarkdown p, .stWrite {
-        color: #ffffff !important;
-        font-weight: 500 !important;
-        font-size: 1rem !important;
-    }
-    
-    /* Form submit button */
-    .stFormSubmitButton>button {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        color: #ffffff !important;
-        font-weight: 700 !important;
-        border: none !important;
-    }
-    
-    .stFormSubmitButton>button p, .stFormSubmitButton>button span, .stFormSubmitButton>button div {
-        color: #ffffff !important;
-        font-weight: 700 !important;
-    }
-    
-    /* Disabled input */
-    input:disabled {
-        background: rgba(200, 200, 200, 0.3) !important;
-        color: rgba(0, 0, 0, 0.6) !important;
-        border-color: rgba(102, 126, 234, 0.2) !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Table styling if any */
-    table {
-        color: #ffffff !important;
-    }
-    
-    thead th {
-        background: rgba(102, 126, 234, 0.2) !important;
-        color: #ffffff !important;
-        font-weight: 700 !important;
-    }
-    
-    tbody td {
-        color: #ffffff !important;
-    }
+    [data-baseweb="calendar"] { background: #000000 !important; border: 2px solid #333333 !important; border-radius: 8px !important; padding: 1rem !important; }
+    [data-baseweb="calendar"] * { color: #ffffff !important; font-weight: 500 !important; }
+    [data-baseweb="calendar"] [role="button"] { color: #ffffff !important; background: transparent !important; font-weight: 500 !important; border-radius: 4px !important; }
+    [data-baseweb="calendar"] [role="button"]:hover { background: #222222 !important; }
+    [data-baseweb="calendar"] [aria-selected="true"] { background: #667eea !important; color: #ffffff !important; font-weight: 600 !important; }
+    .stCaption { color: rgba(255, 255, 255, 0.9) !important; font-size: 1rem !important; font-weight: 500 !important; }
+    hr { border-color: rgba(102, 126, 234, 0.3) !important; margin: 2rem 0 !important; }
+    .stMarkdown p, .stWrite { color: #ffffff !important; font-weight: 500 !important; font-size: 1rem !important; }
+    .stFormSubmitButton>button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important; color: #ffffff !important; font-weight: 700 !important; border: none !important; }
+    .stFormSubmitButton>button p, .stFormSubmitButton>button span, .stFormSubmitButton>button div { color: #ffffff !important; font-weight: 700 !important; }
+    input:disabled { background: rgba(200, 200, 200, 0.3) !important; color: rgba(0, 0, 0, 0.6) !important; border-color: rgba(102, 126, 234, 0.2) !important; font-weight: 600 !important; }
+    table { color: #ffffff !important; }
+    thead th { background: rgba(102, 126, 234, 0.2) !important; color: #ffffff !important; font-weight: 700 !important; }
+    tbody td { color: #ffffff !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# Timezone - Change this to your local timezone
-LOCAL_TIMEZONE = pytz.timezone('Asia/Karachi')  # Pakistan timezone
+LOCAL_TIMEZONE = pytz.timezone('Asia/Karachi')
 
 def get_local_time():
-    """Get current time in local timezone"""
     return datetime.now(LOCAL_TIMEZONE)
 
-# ==================== POSTGRESQL CONNECTION ====================
-
 def get_db_connection():
-    """Get PostgreSQL connection using Streamlit secrets (Session Pooler)"""
     try:
         conn = psycopg2.connect(
             host=st.secrets["DB_HOST"],
@@ -549,7 +134,7 @@ def get_db_connection():
             user=st.secrets["DB_USER"],
             password=st.secrets["DB_PASSWORD"],
             port=st.secrets["DB_PORT"],
-            sslmode=st.secrets["DB_SSLMODE"],  # required for pooler
+            sslmode=st.secrets["DB_SSLMODE"],
             cursor_factory=RealDictCursor
         )
         return conn
@@ -557,33 +142,24 @@ def get_db_connection():
         st.error(f"Database connection failed: {e}")
         st.stop()
 
-
 def hash_password(password):
-    """Hash password using PBKDF2"""
     salt = b'money_records_salt_2024'
     return hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 100000).hex()
 
 def init_db():
-    """Initialize database tables - called only once"""
     conn = get_db_connection()
     c = conn.cursor()
-    
-    # Create users table
     c.execute('''CREATE TABLE IF NOT EXISTS users (
                  id SERIAL PRIMARY KEY,
                  name TEXT NOT NULL,
                  email TEXT UNIQUE NOT NULL,
                  password TEXT NOT NULL
                  )''')
-    
-    # Create customers table
     c.execute('''CREATE TABLE IF NOT EXISTS customers (
                  id SERIAL PRIMARY KEY,
                  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
                  name TEXT NOT NULL
                  )''')
-    
-    # Create transactions table
     c.execute('''CREATE TABLE IF NOT EXISTS transactions (
                  id SERIAL PRIMARY KEY,
                  customer_id INTEGER NOT NULL REFERENCES customers(id) ON DELETE CASCADE,
@@ -594,8 +170,6 @@ def init_db():
                  amount_left NUMERIC DEFAULT 0,
                  note TEXT
                  )''')
-    
-    # Create default admin user if not exists
     try:
         c.execute("SELECT * FROM users WHERE email = %s", ('admin@example.com',))
         if not c.fetchone():
@@ -605,16 +179,12 @@ def init_db():
             conn.commit()
     except Exception as e:
         conn.rollback()
-    
     conn.close()
 
-# Initialize session state
 def init_session_state():
-    """Initialize all session state variables"""
     if 'db_initialized' not in st.session_state:
         init_db()
         st.session_state.db_initialized = True
-    
     if 'logged_in' not in st.session_state:
         st.session_state.logged_in = False
     if 'user_id' not in st.session_state:
@@ -632,17 +202,15 @@ def init_session_state():
 
 init_session_state()
 
-# ==================== DATABASE FUNCTIONS ====================
-
 def register_user(name, email, password):
-    """Register a new user"""
     try:
         conn = get_db_connection()
         c = conn.cursor()
         hashed = hash_password(password)
         c.execute("INSERT INTO users (name, email, password) VALUES (%s, %s, %s) RETURNING id",
                   (name, email, hashed))
-        user_id = c.fetchone()[0]
+        result = c.fetchone()
+        user_id = result['id']
         conn.commit()
         conn.close()
         return True, user_id, name
@@ -656,84 +224,62 @@ def register_user(name, email, password):
         return False, None, None
 
 def login_user(email, password):
-    """Login user"""
     conn = get_db_connection()
     c = conn.cursor()
     hashed = hash_password(password)
-    c.execute("SELECT id, name FROM users WHERE email = %s AND password = %s",
-              (email, hashed))
+    c.execute("SELECT id, name FROM users WHERE email = %s AND password = %s", (email, hashed))
     result = c.fetchone()
     conn.close()
     if result:
-        return True, result[0], result[1]
+        return True, result['id'], result['name']
     return False, None, None
 
 def get_customers(user_id):
-    """Get all customers for a user"""
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("SELECT id, name FROM customers WHERE user_id = %s ORDER BY name",
-              (user_id,))
+    c.execute("SELECT id, name FROM customers WHERE user_id = %s ORDER BY name", (user_id,))
     customers = c.fetchall()
     conn.close()
-    return customers
+    return [(c['id'], c['name']) for c in customers]
 
 def add_customer(user_id, name):
-    """Add a new customer"""
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("INSERT INTO customers (user_id, name) VALUES (%s, %s)",
-              (user_id, name))
+    c.execute("INSERT INTO customers (user_id, name) VALUES (%s, %s)", (user_id, name))
     conn.commit()
     conn.close()
 
 def get_transactions(customer_id, month_filter=None, start_date=None, end_date=None):
-    """Get all transactions for a customer with optional filters"""
     conn = get_db_connection()
     c = conn.cursor()
-    
     if start_date and end_date:
-        # Date range filter - PostgreSQL syntax
         c.execute("""SELECT id, date_time, type, total_amount, amount_received, amount_left, note 
-                     FROM transactions 
-                     WHERE customer_id = %s AND date_time::date BETWEEN %s AND %s
-                     ORDER BY date_time DESC""",
-                  (customer_id, start_date, end_date))
+                     FROM transactions WHERE customer_id = %s AND date_time::date BETWEEN %s AND %s
+                     ORDER BY date_time DESC""", (customer_id, start_date, end_date))
     elif month_filter and month_filter != "All Months":
-        # Month filter - PostgreSQL syntax
         c.execute("""SELECT id, date_time, type, total_amount, amount_received, amount_left, note 
-                     FROM transactions 
-                     WHERE customer_id = %s AND TO_CHAR(date_time, 'YYYY-MM') = %s
-                     ORDER BY date_time DESC""",
-                  (customer_id, month_filter))
+                     FROM transactions WHERE customer_id = %s AND TO_CHAR(date_time, 'YYYY-MM') = %s
+                     ORDER BY date_time DESC""", (customer_id, month_filter))
     else:
-        # No filter - all transactions
         c.execute("""SELECT id, date_time, type, total_amount, amount_received, amount_left, note 
-                     FROM transactions 
-                     WHERE customer_id = %s
-                     ORDER BY date_time DESC""",
-                  (customer_id,))
-    
+                     FROM transactions WHERE customer_id = %s ORDER BY date_time DESC""", (customer_id,))
     transactions = c.fetchall()
     conn.close()
-    return transactions
+    return [(t['id'], t['date_time'], t['type'], t['total_amount'], 
+             t['amount_received'], t['amount_left'], t['note']) for t in transactions]
 
 def get_today_transactions(customer_id):
-    """Get today's transactions for a customer"""
     conn = get_db_connection()
     c = conn.cursor()
     today = get_local_time().strftime('%Y-%m-%d')
-    c.execute("""SELECT date_time, type, total_amount 
-                 FROM transactions 
-                 WHERE customer_id = %s AND date_time::date = %s
-                 ORDER BY date_time DESC""",
+    c.execute("""SELECT date_time, type, total_amount FROM transactions 
+                 WHERE customer_id = %s AND date_time::date = %s ORDER BY date_time DESC""",
               (customer_id, today))
     transactions = c.fetchall()
     conn.close()
-    return transactions
+    return [(t['date_time'], t['type'], t['total_amount']) for t in transactions]
 
 def add_transaction(customer_id, trans_type, total_amount, amount_received, amount_left, note):
-    """Add a new transaction"""
     conn = get_db_connection()
     c = conn.cursor()
     date_time = get_local_time().strftime('%Y-%m-%d %H:%M:%S')
@@ -744,18 +290,14 @@ def add_transaction(customer_id, trans_type, total_amount, amount_received, amou
     conn.close()
 
 def update_transaction(trans_id, trans_type, total_amount, amount_received, amount_left, note):
-    """Update an existing transaction"""
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("""UPDATE transactions 
-                 SET type = %s, total_amount = %s, amount_received = %s, amount_left = %s, note = %s
-                 WHERE id = %s""",
-              (trans_type, total_amount, amount_received, amount_left, note, trans_id))
+    c.execute("""UPDATE transactions SET type = %s, total_amount = %s, amount_received = %s, amount_left = %s, note = %s
+                 WHERE id = %s""", (trans_type, total_amount, amount_received, amount_left, note, trans_id))
     conn.commit()
     conn.close()
 
 def delete_transaction(trans_id):
-    """Delete a transaction"""
     conn = get_db_connection()
     c = conn.cursor()
     c.execute("DELETE FROM transactions WHERE id = %s", (trans_id,))
@@ -763,39 +305,30 @@ def delete_transaction(trans_id):
     conn.close()
 
 def get_available_months(customer_id):
-    """Get list of months with transactions"""
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute("""SELECT DISTINCT TO_CHAR(date_time, 'YYYY-MM') as month
-                 FROM transactions 
-                 WHERE customer_id = %s
-                 ORDER BY month DESC""",
-              (customer_id,))
-    months = [row[0] for row in c.fetchall()]
+    c.execute("""SELECT DISTINCT TO_CHAR(date_time, 'YYYY-MM') as month FROM transactions 
+                 WHERE customer_id = %s ORDER BY month DESC""", (customer_id,))
+    months = [row['month'] for row in c.fetchall()]
     conn.close()
     return months
 
 def calculate_summary(transactions):
-    """Calculate total received, given, and balance"""
     total_received = sum(float(t[3]) for t in transactions if t[2] == 'Received')
     total_given = sum(float(t[3]) for t in transactions if t[2] == 'Given')
     balance = total_received - total_given
     return total_received, total_given, balance
 
-# ==================== MAIN APP ====================
-
 # AUTH SCREEN
 if not st.session_state.logged_in:
-    # Centered login container
     col1, col2, col3 = st.columns([1, 2, 1])
-    
     with col2:
         st.markdown('<div class="main-header">', unsafe_allow_html=True)
         st.markdown("<h1 style='text-align: center; color: white;'>📊 Haji Tariq Rafiq Traders</h1>", unsafe_allow_html=True)
         st.markdown("<p style='text-align: center; color: white; font-size: 1.2rem; font-weight: 500;'>Professional Transaction Management System</p>", unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
         
-        tab1, tab2 = st.tabs(["🔐 Login", "📝 Register"])
+        tab1, tab2 = st.tabs(["🔓 Login", "📝 Register"])
         
         with tab1:
             st.markdown("### Welcome Back")
@@ -846,7 +379,6 @@ if not st.session_state.logged_in:
 
 # CUSTOMER SCREEN
 else:
-    # Header with gradient
     st.markdown('<div class="main-header">', unsafe_allow_html=True)
     col1, col2 = st.columns([4, 1])
     with col1:
@@ -858,20 +390,15 @@ else:
             st.rerun()
     st.markdown('</div>', unsafe_allow_html=True)
     
-    # Customer Selection
     customers = get_customers(st.session_state.user_id)
     customer_dict = {c[1]: c[0] for c in customers}
     customer_names = list(customer_dict.keys())
     
     col1, col2 = st.columns([3, 1])
-    
     with col1:
         if customer_names:
-            selected_name = st.selectbox(
-                "Select Customer",
-                [""] + customer_names,
-                format_func=lambda x: "Please select a customer" if x == "" else x
-            )
+            selected_name = st.selectbox("Select Customer", [""] + customer_names,
+                format_func=lambda x: "Please select a customer" if x == "" else x)
             if selected_name:
                 st.session_state.selected_customer_id = customer_dict[selected_name]
             else:
@@ -879,12 +406,10 @@ else:
         else:
             st.info("No customers yet. Click 'Add New Customer' to get started.")
             st.session_state.selected_customer_id = None
-    
     with col2:
         if st.button("➕ Add New Customer", type="primary", use_container_width=True):
             st.session_state.show_add_customer = True
     
-    # Add Customer Form
     if st.session_state.show_add_customer:
         st.markdown("### ➕ Add New Customer")
         with st.form("add_customer_form"):
@@ -903,61 +428,37 @@ else:
                     st.rerun()
                 else:
                     st.error("❌ Please enter a customer name")
-            
             if cancel_customer:
                 st.session_state.show_add_customer = False
                 st.rerun()
     
-    # Show transactions if customer is selected
     if st.session_state.selected_customer_id:
         st.markdown("---")
-        
-        # Filter Options
         st.markdown("### 🔍 Search Transactions")
         
-        filter_type = st.radio(
-            "Filter By:",
-            ["Date Range", "All Transactions"],
-            horizontal=True,
-            help="Choose how you want to view transactions"
-        )
+        filter_type = st.radio("Filter By:", ["Date Range", "All Transactions"], horizontal=True,
+            help="Choose how you want to view transactions")
         
         start_date = None
         end_date = None
         
         if filter_type == "Date Range":
-            # Date Range Filter with Calendar
             col1, col2 = st.columns(2)
             with col1:
-                start_date = st.date_input(
-                    "From Date",
-                    value=get_local_time().date().replace(day=1),
-                    help="Select start date"
-                )
+                start_date = st.date_input("From Date", value=get_local_time().date().replace(day=1), help="Select start date")
             with col2:
-                end_date = st.date_input(
-                    "To Date",
-                    value=get_local_time().date(),
-                    help="Select end date"
-                )
-            
+                end_date = st.date_input("To Date", value=get_local_time().date(), help="Select end date")
             if start_date > end_date:
                 st.error("❌ Start date cannot be after end date")
                 start_date = None
                 end_date = None
         
-        # Get transactions with filters
-        transactions = get_transactions(
-            st.session_state.selected_customer_id, 
-            None,
+        transactions = get_transactions(st.session_state.selected_customer_id, None,
             start_date.strftime('%Y-%m-%d') if start_date else None,
-            end_date.strftime('%Y-%m-%d') if end_date else None
-        )
+            end_date.strftime('%Y-%m-%d') if end_date else None)
         
-        # Summary
         if transactions:
             total_received, total_given, balance = calculate_summary(transactions)
-            
             st.markdown("### 💼 Financial Overview")
             col1, col2, col3 = st.columns(3)
             with col1:
@@ -973,27 +474,16 @@ else:
                 st.metric("📈 Net Balance", f"₨ {balance:,.2f}")
                 st.markdown('</div>', unsafe_allow_html=True)
             
-            # Download CSV
             st.write("")
-            
-            # Create filename based on filter type
             if filter_type == "Date Range" and start_date and end_date:
                 filename = f"{selected_name}_{start_date}_{end_date}.csv"
             else:
                 filename = f"{selected_name}_all_records_{get_local_time().strftime('%Y%m%d_%H%M%S')}.csv"
-            
             df = pd.DataFrame(transactions, columns=['ID', 'Date & Time', 'Type', 'Total Amount', 'Amount Received', 'Amount Left', 'Note'])
             csv = df.to_csv(index=False)
-            st.download_button(
-                label="📥 Download Records (CSV)",
-                data=csv,
-                file_name=filename,
-                mime="text/csv",
-                type="secondary",
-                use_container_width=True
-            )
+            st.download_button(label="📥 Download Records (CSV)", data=csv, file_name=filename, mime="text/csv",
+                type="secondary", use_container_width=True)
         
-        # Today's Transactions
         today_trans = get_today_transactions(st.session_state.selected_customer_id)
         if today_trans:
             st.markdown("---")
@@ -1012,16 +502,13 @@ else:
         
         st.markdown("---")
         
-        # Add Record Button
         if st.button("➕ Add Transaction", type="primary"):
             st.session_state.show_add_form = True
             st.session_state.edit_transaction_id = None
         
-        # Add/Edit Form
         if st.session_state.show_add_form or st.session_state.edit_transaction_id:
             st.markdown("### " + ("✏️ Edit Transaction" if st.session_state.edit_transaction_id else "➕ Add New Transaction"))
             
-            # Get existing transaction data if editing
             if st.session_state.edit_transaction_id:
                 trans = [t for t in transactions if t[0] == st.session_state.edit_transaction_id][0]
                 default_type = trans[2]
@@ -1036,24 +523,24 @@ else:
             
             with st.form("transaction_form"):
                 trans_type = st.selectbox("Transaction Type", ["Received", "Given"], 
-                                         index=0 if default_type == "Received" else 1,
-                                         help="Select whether you received payment or gave payment")
+                    index=0 if default_type == "Received" else 1,
+                    help="Select whether you received payment or gave payment")
                 
                 col1, col2 = st.columns(2)
                 with col1:
                     total_amount = st.number_input("Total Amount (₨)", min_value=0.0, value=float(default_total_amount), step=0.01,
-                                                  help="Enter the total transaction amount")
+                        help="Enter the total transaction amount")
                 with col2:
                     amount_received = st.number_input("Amount Received (₨)", min_value=0.0, value=float(default_amount_received), step=0.01,
-                                                     help="Enter the amount actually received")
+                        help="Enter the amount actually received")
                 
                 amount_left = total_amount - amount_received
                 st.number_input("Amount Remaining (₨)", value=float(amount_left), disabled=True,
-                               help="Automatically calculated: Total - Received")
+                    help="Automatically calculated: Total - Received")
                 
                 note = st.text_area("Additional Notes (Optional)", value=default_note, 
-                                   placeholder="Add any details or remarks about this transaction",
-                                   help="You can add payment method, purpose, or any other details")
+                    placeholder="Add any details or remarks about this transaction",
+                    help="You can add payment method, purpose, or any other details")
                 
                 st.write("")
                 col1, col2 = st.columns(2)
@@ -1081,7 +568,6 @@ else:
                     st.session_state.edit_transaction_id = None
                     st.rerun()
         
-        # Display Transactions
         if transactions:
             st.markdown("---")
             st.markdown("### 📜 Transaction History")
@@ -1090,7 +576,6 @@ else:
             for trans in transactions:
                 trans_id, date_time, trans_type, total_amount, amount_received, amount_left, note = trans
                 
-                # Format datetime for display
                 if isinstance(date_time, str):
                     display_time = date_time
                 else:
@@ -1126,7 +611,6 @@ else:
                             st.session_state[f'confirm_delete_{trans_id}'] = True
                             st.rerun()
                 
-                # Delete confirmation
                 if st.session_state.get(f'confirm_delete_{trans_id}', False):
                     st.warning("⚠️ **Confirm Deletion** - This action cannot be undone!")
                     conf_col1, conf_col2 = st.columns(2)
@@ -1143,7 +627,7 @@ else:
                 
                 st.markdown('</div>', unsafe_allow_html=True)
         else:
-            st.info("📝 No transactions found. Click 'Add Transaction' to record your first entry!")
+            st.info("🔍 No transactions found. Click 'Add Transaction' to record your first entry!")
     else:
         if customer_names:
             st.info("👆 Please select a customer to view and manage their records.")
